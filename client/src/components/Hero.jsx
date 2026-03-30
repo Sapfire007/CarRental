@@ -8,6 +8,16 @@ const Hero = () => {
 
     const { pickupDate, setPickupDate, returnDate, setReturnDate, navigate } = useAppContext();
 
+    const getMinReturnDate = () => {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowStr = tomorrow.toISOString().split('T')[0];
+        if (!pickupDate) return tomorrowStr;
+        const nextDay = new Date(pickupDate);
+        nextDay.setDate(nextDay.getDate() + 1);
+        return nextDay.toISOString().split('T')[0];
+    };
+
     const handleSearch = (e) => {
         e.preventDefault();
         navigate('/cars?pickupLocation=' + pickupLocation + '&pickupDate=' + pickupDate + '&returnDate=' + returnDate);
@@ -30,7 +40,7 @@ const Hero = () => {
                 </div>
                 <div className='flex flex-col items-start gap-2'>
                     <label htmlFor="return-date">Return Date</label>
-                    <input value={returnDate} onChange={e => setReturnDate(e.target.value)} type="date" id="return-date" className='text-sm text-gray-500' required />
+                    <input value={returnDate} onChange={e => setReturnDate(e.target.value)} type="date" id="return-date" min={getMinReturnDate()} className='text-sm text-gray-500' required />
                 </div>
             </div>
             <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className='flex items-center justify-center gap-1 px-9 py-3 max-sm:mt-4 bg-primary hover:bg-primary-dull text-white rounded-full cursor-pointer'>
