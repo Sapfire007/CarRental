@@ -114,3 +114,33 @@ export const changeBookingStatus = async (req, res) => {
         res.json({success: false, message: error.message});
     }
 }
+
+// API to Cancel Booking
+export const cancelBooking = async (req, res) => {
+    try {
+        const {_id} = req.user;
+        const {bookingId} = req.body
+
+        const booking = await Booking.findById(bookingId);
+
+        if (!booking) {
+            return res.json({success: false, message: "Booking not found"});
+        }
+
+        if(booking.user.toString() !== _id.toString()){
+            return res.json({success: false, message: "Unauthorized"});
+        }
+
+        if(booking.status === "cancelled"){
+            return res.json({success: false, message: "Booking is already cancelled"});
+        }
+
+        booking.status = "cancelled";
+        await booking.save();
+
+        res.json({success: true, message: "Booking Cancelled"});
+    } catch (error) {
+        console.error(error);
+        res.json({success: false, message: error.message});
+    }
+}

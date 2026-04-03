@@ -3,6 +3,7 @@ import { assets } from '../assets/assets';
 import Title from '../components/Title';
 import { useAppContext } from '../context/AppContext';
 import { motion } from 'motion/react'
+import toast from 'react-hot-toast';
 
 const MyBookings = () => {
 
@@ -23,6 +24,20 @@ const MyBookings = () => {
     }  
   }
 
+  const cancelBooking = async (bookingId) => {
+    try {
+      const { data } = await axios.post('/api/bookings/cancel', { bookingId });
+      if (data.success) {
+        toast.success(data.message);
+        fetchMyBookings();
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  }
+
   useEffect(() => {
     user && fetchMyBookings()
   }, [user]);
@@ -36,10 +51,10 @@ const MyBookings = () => {
             {/* Car Image + Info */}
             <div className='md:col-span-1'>
               <div className='rounded-md overflow-hidden mb-3'>
-                <img src={booking.car.image} className='w-full h-auto aspect-video object-cover' alt="" />
+                <img src={booking.car?.image || ''} className='w-full h-auto aspect-video object-cover bg-gray-200' alt="Car image" />
               </div>
-              <p className='text-lg font-medium mt-2'>{booking.car.brand} {booking.car.model}</p>
-              <p className='text-gray-500'>{booking.car.year} • {booking.car.category} • {booking.car.location}</p>
+              <p className='text-lg font-medium mt-2'>{booking.car?.brand || 'Car'} {booking.car?.model || 'Unavailable'}</p>
+              <p className='text-gray-500'>{booking.car?.year || 'N/A'} • {booking.car?.category || 'N/A'} • {booking.car?.location || 'N/A'}</p>
             </div>
             {/* Booking Info */}
             <div className='md:col-span-2'>
@@ -59,17 +74,26 @@ const MyBookings = () => {
                 <img src={assets.location_icon_colored} className='w-4 h-4 mt-1' alt="" />
                 <div>
                   <p className='text-gray-500'>Pick-up Location</p>
-                  <p>{booking.car.location}</p>
+                  <p>{booking.car?.location || 'N/A'}</p>
                 </div>
               </div>
             </div>
-            {/* Price */}
+            {/* Price & Action */}
             <div className='md:col-span-1 flex flex-col justify-between gap-6'>
               <div className='text-sm text-gray-500 text-right'>
                 <p>Total Price</p>
                 <h1 className='text-2xl font-semibold text-primary'>{currency}{booking.price}</h1>
                 <p>Booked on {booking.createdAt.split('T')[0]}</p>
               </div>
+              {booking.status !== 'cancelled' && (
+                <div className='text-right'>
+                  <button 
+                    onClick={() => cancelBooking(booking._id)} 
+                    className='px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-sm'>
+                    Cancel Ride
+                  </button>
+                </div>
+              )}
             </div>
           </motion.div>
         ))}

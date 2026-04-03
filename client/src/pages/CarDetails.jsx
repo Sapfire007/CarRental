@@ -13,6 +13,16 @@ const CarDetails = () => {
   const [car, setCar] = useState(null);
   const currency = import.meta.env.VITE_CURRENCY;
 
+  const getMinReturnDate = () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().split('T')[0];
+    if (!pickupDate) return tomorrowStr;
+    const nextDay = new Date(pickupDate);
+    nextDay.setDate(nextDay.getDate() + 1);
+    return nextDay.toISOString().split('T')[0];
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault(); 
     try {
@@ -115,7 +125,7 @@ const CarDetails = () => {
 
           <div className='flex flex-col gap-2'>
             <label htmlFor="return-date">Return Date</label>
-            <input value={returnDate} onChange={(e) => setReturnDate(e.target.value)} type="date" className='border border-borderColor px-3 py-2 rounded-lg' required id='return-date' />
+            <input value={returnDate} onChange={(e) => setReturnDate(e.target.value)} type="date" className='border border-borderColor px-3 py-2 rounded-lg' required id='return-date' min={getMinReturnDate()} />
           </div>
 
           <button className='w-full bg-primary hover:bg-primary-dull transition-all py-3 font-medium text-white rounded-xl cursor-pointer'>Book Now</button>
